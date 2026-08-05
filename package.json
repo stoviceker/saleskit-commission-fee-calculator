@@ -1,0 +1,13 @@
+{
+  "name": "saleskit-kalkulacka",
+  "version": "1.0.0",
+  "description": "Saleskit – kalkulačka provizních výnosů pro partnery",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saleskit – Kalkulačka výnosů pro partnery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --purple:#7C37D1;
+    --purple-deep:#3A1078;
+    --purple-a:#8B3FE0;
+    --purple-b:#6C2BD9;
+    --cyan:#1CEAFF;
+    --cyan-deep:#00C2E0;
+    --green:#17C964;
+    --teal:#008B9A;
+    --dark:#1A1A2E;
+    --ink:#1A1A2E;
+    --muted:#6B7185;
+    --surface:#FFFFFF;
+    --surface-alt:#F2F1FB;
+    --line:#EAEAF4;
+    --radius:22px;
+    --shadow:0 2px 4px rgba(26,26,46,.03),0 14px 40px rgba(60,40,120,.08);
+    --grad-cyan:linear-gradient(90deg,#1CEAFF,#28C7E8);
+    --grad-slider:linear-gradient(90deg,#1CEAFF 0%,#5B8DEF 48%,#7C37D1 100%);
+    --grad-purple:linear-gradient(135deg,#8B3FE0,#6C2BD9);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',Arial,sans-serif;background:#EDF0F6;color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3,.grotesk{font-family:'Familjen Grotesk','Trebuchet MS',sans-serif;letter-spacing:-.01em;}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px 72px;}
+
+  header{background:#fff;border-bottom:1px solid var(--line);}
+  .header-inner{max-width:1120px;margin:0 auto;padding:18px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+  .logo-wrap{display:inline-block;height:26px;overflow:hidden;line-height:0;}
+  .logo-wrap img{height:38px;width:auto;display:block;}
+  .app-toggle{display:inline-flex;align-items:center;background:#E7EAF1;border-radius:100px;padding:5px;gap:2px;margin-left:6px;}
+  .app-toggle .seg{font-family:'Familjen Grotesk','Trebuchet MS',sans-serif;font-weight:600;font-size:15px;color:var(--ink);padding:8px 22px;border-radius:100px;line-height:1;user-select:none;}
+  .app-toggle .seg.active{background:linear-gradient(180deg,#63E9FF 0%,#1CD4EF 100%);color:#0A0A14;font-weight:700;box-shadow:0 2px 7px rgba(28,212,239,.4);}
+  .social{margin-left:auto;display:flex;align-items:center;gap:10px;}
+  .bubble{width:42px;height:42px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#fff;border:1px solid var(--line);box-shadow:0 2px 8px rgba(26,26,46,.06);color:var(--ink);transition:transform .15s,box-shadow .15s,background .15s,color .15s;}
+  .bubble:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(124,55,209,.22);background:var(--purple);color:#fff;}
+  .bubble svg{width:20px;height:20px;display:block;}
+
+  .hero{padding:48px 0 8px;}
+  .eyebrow{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#0C6E7A;background:var(--grad-cyan);padding:7px 14px;border-radius:100px;margin-bottom:16px;}
+  .hero h1{font-size:44px;font-weight:700;font-style:italic;line-height:1.05;white-space:nowrap;}
+  .hero p{margin-top:14px;font-size:17px;color:var(--muted);max-width:none;text-align:justify;}
+
+  .grid{display:flex;flex-direction:column;gap:24px;margin-top:36px;}
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:26px 40px;align-items:start;}
+  .split-col{display:flex;flex-direction:column;}
+  .card h2 + .split{margin-top:22px;}
+  .card h2 + .extra{margin-top:22px;}
+  /* block 2 bubbles */
+  .b2-grid{display:grid;grid-template-columns:1fr 1fr 1.3fr;gap:16px;margin-top:22px;align-items:stretch;}
+  .bubble2{background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px 20px;display:flex;flex-direction:column;gap:10px;justify-content:flex-start;}
+  .bubble2 .b2-lbl{font-size:13px;font-weight:600;color:var(--muted);}
+  .bubble2 .b2-val{font-family:'Familjen Grotesk','Trebuchet MS',sans-serif;font-weight:700;font-size:26px;color:var(--ink);line-height:1.05;display:flex;align-items:center;justify-content:flex-start;}
+  .bubble2 .seg-choice{align-self:flex-start;}
+  .bubble2 .b2-note{font-size:12px;color:var(--muted);}
+  .bubble2.accent{background:var(--surface-alt);border-color:transparent;}
+  .bubble2.accent .b2-val{color:var(--purple);}
+  #provChoice{display:flex;}
+  #provChoice button{flex:1;min-width:76px;padding-left:10px;padding-right:10px;text-align:center;}
+  @media(max-width:920px){.b2-grid{grid-template-columns:1fr;}}
+  @media(max-width:920px){.split{grid-template-columns:1fr;}.hero h1{font-size:32px;}}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow);}
+  .card h2{font-size:23px;font-weight:700;font-style:italic;display:flex;align-items:center;gap:10px;}
+  .card .sub{color:var(--muted);font-size:14px;margin-top:4px;margin-bottom:22px;}
+  .step-num{width:28px;height:28px;border-radius:9px;background:var(--grad-purple);color:#fff;font-size:14px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;font-family:'Inter';}
+
+  .field{margin-bottom:20px;}
+  .card h2 + .field{margin-top:22px;}
+  .field label{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;font-weight:600;margin-bottom:8px;}
+  .field label .val{font-family:'Familjen Grotesk';font-weight:700;color:var(--purple);font-size:15px;}
+  .input-row{display:flex;align-items:center;gap:12px;}
+  input[type=number]{width:130px;font-family:'Familjen Grotesk';font-weight:600;font-size:16px;color:var(--ink);padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;transition:border-color .15s;}
+  input[type=number]:focus{outline:none;border-color:var(--purple);}
+  .unit{font-size:13px;color:var(--muted);font-weight:500;}
+  .seg-choice{display:inline-flex;background:#E7EAF1;border-radius:100px;padding:4px;gap:2px;margin-top:4px;}
+  .seg-choice button{border:none;background:none;font-family:'Familjen Grotesk','Trebuchet MS',sans-serif;font-weight:700;font-size:15px;color:var(--ink);padding:10px 32px;border-radius:100px;cursor:pointer;transition:background .15s,color .15s,box-shadow .15s;}
+  .seg-choice button.on{background:var(--grad-purple);color:#fff;box-shadow:0 2px 8px rgba(124,55,209,.35);}
+  input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:7px;border-radius:100px;background:var(--grad-slider);cursor:pointer;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:4px solid var(--purple);box-shadow:0 2px 8px rgba(124,55,209,.35);}
+  input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#fff;border:4px solid var(--purple);box-shadow:0 2px 8px rgba(124,55,209,.35);}
+
+  /* fixed-rate rows (menu-style) */
+  .rates{background:#E7EAF1;border-radius:20px;padding:8px;display:flex;flex-direction:column;gap:2px;margin:6px 0 4px;}
+  .rate{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 24px;border-radius:100px;transition:background .18s;}
+  .rate:hover{background:linear-gradient(90deg,#3FD9F0 0%,#8CE7F6 45%,#D6F5FB 100%);}
+  .rate .rlbl{font-size:15px;font-weight:600;color:var(--ink);text-align:left;}
+  .rate .rval{font-family:'Familjen Grotesk','Trebuchet MS',sans-serif;font-weight:700;font-size:17px;color:var(--ink);text-align:right;}
+
+  /* funnel = rounded rectangles + arrows */
+  .funnel{display:flex;flex-direction:column;gap:0;}
+  .band{height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;color:var(--ink);border-radius:13px;}
+  .arrow{display:flex;justify-content:center;align-items:center;height:22px;color:#B4A9D6;}
+  .arrow svg{width:20px;height:20px;display:block;}
+  .band .b-name{font-size:14px;font-weight:600;font-family:'Inter';}
+  .band .b-num{font-family:'Familjen Grotesk','Trebuchet MS',sans-serif;font-weight:700;font-size:24px;}
+
+  .result{background:var(--surface-alt);border-radius:16px;padding:18px 20px;margin-top:6px;}
+  .result.big{background:linear-gradient(135deg,#3A1078 0%,#7C37D1 100%);color:#fff;box-shadow:0 12px 28px rgba(90,33,182,.28);}
+  .result .r-label{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;}
+  .result.big .r-label{color:rgba(255,255,255,.7);}
+  .result .r-num{font-family:'Familjen Grotesk';font-weight:700;font-size:34px;line-height:1.1;margin-top:4px;}
+  .result.big .r-num{color:var(--cyan);}
+  .result .r-note{font-size:13px;color:var(--muted);margin-top:6px;}
+  .result.big .r-note{color:rgba(255,255,255,.75);}
+
+  .divider{height:1px;background:var(--line);margin:24px 0;}
+
+  /* block 3 — full width 5-year outlook */
+  .block3{margin-top:24px;}
+  .b3-grid{display:grid;grid-template-columns:1.7fr 1fr;gap:24px;align-items:stretch;margin-top:8px;}
+  .b3-side{display:flex;flex-direction:column;gap:12px;justify-content:center;}
+  .result.soft{background:var(--surface-alt);}
+  .result.soft .r-num{color:var(--purple);}
+  .kpis{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:3px;}
+  .kpi .k-num{font-family:'Familjen Grotesk','Trebuchet MS',sans-serif;font-weight:700;font-size:20px;color:var(--ink);}
+  .kpi .k-lbl{font-size:12px;color:var(--muted);font-weight:600;}
+  @media(max-width:920px){.b3-grid{grid-template-columns:1fr;}}
+
+  /* collapsible extra deals */
+  details.extra{border:1.5px dashed var(--line);border-radius:14px;padding:0 18px;margin-top:4px;background:#fff;}
+  details.extra summary{cursor:pointer;list-style:none;padding:15px 0;font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px;}
+  details.extra summary::-webkit-details-marker{display:none}
+  details.extra summary .arw{transition:transform .2s;color:var(--purple);font-size:12px;}
+  details.extra[open] summary .arw{transform:rotate(90deg);}
+  .extra-note{font-size:13px;color:var(--muted);margin:-4px 0 14px;}
+  .extra-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding-bottom:18px;}
+  .extra-grid .eg{display:flex;flex-direction:column;gap:6px;}
+  .extra-grid .eg label{font-size:12px;font-weight:600;color:var(--muted);}
+  /* stepper +/- */
+  .stepper{display:flex;align-items:center;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;}
+  .stepper button{width:36px;height:40px;border:none;background:var(--surface-alt);color:var(--purple);font-size:20px;font-weight:700;cursor:pointer;line-height:1;transition:background .15s;flex:none;}
+  .stepper button:hover{background:#E1DAF2;}
+  .stepper button:active{background:#D3C8EE;}
+  .stepper input.no-spin{flex:1;min-width:0;width:100%;text-align:center;border:none;font-family:'Familjen Grotesk','Trebuchet MS',sans-serif;font-weight:700;font-size:16px;color:var(--ink);padding:8px 0;}
+  .no-spin::-webkit-outer-spin-button,.no-spin::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .no-spin{-moz-appearance:textfield;}
+  /* churn checkbox */
+  .chk{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer;margin-bottom:12px;}
+  .chk input{width:18px;height:18px;accent-color:var(--purple);cursor:pointer;}
+  .churn-rate{transition:opacity .15s;}
+  .churn-rate.off{opacity:.4;pointer-events:none;}
+
+  /* 5yr chart */
+  .years{display:flex;gap:14px;align-items:flex-end;height:190px;margin-top:12px;padding-top:36px;}
+  .ycol{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:10px;}
+  .ybar{width:100%;max-width:74px;border-radius:10px 10px 4px 4px;background:linear-gradient(180deg,#A88AE6 0%,#7C37D1 100%);transition:height .35s ease,filter .15s,box-shadow .15s;min-height:6px;cursor:pointer;}
+  .ycol:hover .ybar{filter:saturate(1.15) brightness(1.04);box-shadow:0 8px 20px rgba(124,55,209,.3);}
+  .ymeta{text-align:center;}
+  .ylabel{font-size:13px;color:var(--ink);font-weight:700;}
+  .ytip{position:absolute;bottom:100%;left:50%;transform:translateX(-50%) translateY(6px);margin-bottom:8px;background:var(--dark);color:#fff;padding:9px 13px;border-radius:11px;font-size:12px;line-height:1.4;white-space:nowrap;text-align:center;opacity:0;pointer-events:none;transition:opacity .15s,transform .15s;z-index:6;box-shadow:0 10px 26px rgba(26,26,46,.28);}
+  .ytip::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--dark);}
+  .ytip b{display:block;font-family:'Familjen Grotesk','Trebuchet MS',sans-serif;font-size:15px;color:var(--cyan);margin-top:2px;}
+  .ycol:hover .ytip{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  .foot{margin-top:34px;font-size:13px;color:var(--muted);text-align:center;}
+  .pill-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+  .chip{font-size:12px;font-weight:600;background:#fff;border:1px solid var(--line);border-radius:100px;padding:5px 12px;color:var(--muted);}
+  .reset{margin-left:auto;font-size:13px;font-weight:600;color:var(--purple);background:none;border:none;cursor:pointer;text-decoration:underline;}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <span class="logo-wrap"><img src="https://cdn.prod.website-files.com/67617acc1021350454a46be2/6761c433ccfc67861732892b_saleskit-logo-alt.svg" alt="Saleskit"></span>
+    <div class="app-toggle" aria-hidden="true"><span class="seg active">Merk</span><span class="seg">Leady</span></div>
+    <nav class="social">
+      <a class="bubble" href="https://www.saleskit.com/cs" target="_blank" rel="noopener" title="Web" aria-label="Web">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3.2 9h17.6M3.2 15h17.6"/></svg>
+      </a>
+      <a class="bubble" href="https://www.linkedin.com/company/saleskitcom" target="_blank" rel="noopener" title="LinkedIn" aria-label="LinkedIn">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 11-.02 5 2.5 2.5 0 01.02-5zM3 9h4v12H3zM9 9h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.3c0-1.27-.02-2.9-1.77-2.9-1.77 0-2.04 1.38-2.04 2.8V21H9z"/></svg>
+      </a>
+      <span class="bubble" title="Instagram" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1.2" fill="currentColor" stroke="none"/></svg>
+      </span>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+  <section class="hero">
+    <span class="eyebrow">Společná outreach kampaň</span>
+    <h1>Kolik vám přinese spolupráce se Saleskitem?</h1>
+    <p>Saleskit nabízí svým partnerům 10% nebo 20% lifetime provizi z každého obchodu uzavřeného díky jejich doporučení. Následující kalkulačka vám ukáže, kolik takové partnerství může vaší společnosti přinést v průběhu let. Stačí nastavit objem oslovených kontaktů a okamžitě uvidíte trychtýř kampaně i váš provizní příjem.</p>
+  </section>
+
+  <div class="grid">
+    <!-- FUNNEL -->
+    <div class="card">
+      <h2><span class="step-num">1</span> Funnel kampaně
+        <button class="reset" onclick="resetAll()">Obnovit výchozí</button>
+      </h2>
+
+      <div class="split">
+       <div class="split-col">
+        <div class="field">
+          <label>Oslovené kontakty <span class="val" id="v_contacts">1 000</span></label>
+          <div class="input-row">
+            <input type="number" id="contacts" min="0" max="5000" step="50" value="1000">
+            <input type="range" id="contacts_r" min="0" max="5000" step="50" value="1000">
+          </div>
+        </div>
+
+        <div class="rates">
+          <div class="rate"><span class="rlbl">Engagement</span><span class="rval">30 %</span></div>
+          <div class="rate"><span class="rlbl">Konverze na schůzky</span><span class="rval">20 %</span></div>
+          <div class="rate"><span class="rlbl">Closing rate</span><span class="rval">20 %</span></div>
+        </div>
+       </div>
+
+       <div class="funnel" id="funnel">
+        <div class="band" id="band0" style="background:#EAF8FC;box-shadow:inset 4px 0 0 #1CD3EC">
+          <span class="b-name">Oslovené kontakty</span>
+          <span class="b-num" id="s_contacts">1 000</span>
+        </div>
+        <div class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v14M6 13l6 6 6-6"/></svg></div>
+        <div class="band" id="band1" style="background:#EAF1FA;box-shadow:inset 4px 0 0 #5AA6E6">
+          <span class="b-name">Engagement</span>
+          <span class="b-num" id="s_eng">300</span>
+        </div>
+        <div class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v14M6 13l6 6 6-6"/></svg></div>
+        <div class="band" id="band2" style="background:#EFEAF8;box-shadow:inset 4px 0 0 #8E6AD6">
+          <span class="b-name">Schůzky</span>
+          <span class="b-num" id="s_meet">60</span>
+        </div>
+        <div class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v14M6 13l6 6 6-6"/></svg></div>
+        <div class="band" id="band3" style="background:#ECE4F6;box-shadow:inset 4px 0 0 #7C37D1">
+          <span class="b-name">Uzavřené obchody</span>
+          <span class="b-num" id="s_close">12</span>
+        </div>
+       </div>
+      </div>
+    </div>
+
+    <!-- PROVISION -->
+    <div class="card">
+      <h2><span class="step-num">2</span> Provizní příjem partnera</h2>
+
+      <div class="b2-grid">
+        <div class="bubble2">
+          <span class="b2-lbl">Průměrná velikost obchodu</span>
+          <span class="b2-val" id="v_deal">90 000 Kč</span>
+        </div>
+
+        <div class="bubble2">
+          <span class="b2-lbl">Provizní sazba</span>
+          <div class="seg-choice" id="provChoice">
+            <button type="button" class="on" data-prov="10">10 %</button>
+            <button type="button" data-prov="20">20 %</button>
+          </div>
+        </div>
+
+        <div class="bubble2 accent">
+          <span class="b2-lbl">Roční provizní příjem (rok 1)</span>
+          <span class="b2-val" id="r_annual">108 000 Kč</span>
+          <span class="b2-note" id="r_annual_note">12 uzavřených obchodů × 90 000 Kč × 10 % provize</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 3: 5-year outlook (full width) -->
+  <div class="card block3">
+    <h2><span class="step-num">3</span> Kumulativní příjem za 5 let</h2>
+
+    <details class="extra" id="extra">
+      <summary><span class="arw">▶</span> Přidat obchody v dalších letech</summary>
+      <p class="extra-note">Zadejte v absolutních číslech, kolik <b>nových</b> obchodů přibude v daném roce, když akci zopakujete. Přičítají se k příjmu od daného roku dál.</p>
+      <div class="extra-grid">
+        <div class="eg"><label>Rok 2</label>
+          <div class="stepper"><button type="button" data-t="add2" data-d="-1">−</button><input type="number" class="no-spin" id="add2" min="0" step="1" value="0"><button type="button" data-t="add2" data-d="1">+</button></div></div>
+        <div class="eg"><label>Rok 3</label>
+          <div class="stepper"><button type="button" data-t="add3" data-d="-1">−</button><input type="number" class="no-spin" id="add3" min="0" step="1" value="0"><button type="button" data-t="add3" data-d="1">+</button></div></div>
+        <div class="eg"><label>Rok 4</label>
+          <div class="stepper"><button type="button" data-t="add4" data-d="-1">−</button><input type="number" class="no-spin" id="add4" min="0" step="1" value="0"><button type="button" data-t="add4" data-d="1">+</button></div></div>
+        <div class="eg"><label>Rok 5</label>
+          <div class="stepper"><button type="button" data-t="add5" data-d="-1">−</button><input type="number" class="no-spin" id="add5" min="0" step="1" value="0"><button type="button" data-t="add5" data-d="1">+</button></div></div>
+      </div>
+    </details>
+
+    <details class="extra" id="extraChurn">
+      <summary><span class="arw">▶</span> Zohlednit churn – odchod klientů</summary>
+      <p class="extra-note">Churn je roční podíl obchodů, které přestanou generovat provizi. Po zapnutí se každý rok obchody sníží o 20 % a promítne se to do grafu i souhrnů níže.</p>
+      <label class="chk"><input type="checkbox" id="churnOn"> <span>Zahrnout churn do výpočtu (20 % ročně)</span></label>
+    </details>
+
+    <div class="b3-grid">
+      <div class="years" id="years"></div>
+      <div class="b3-side">
+        <div class="result soft">
+          <div class="r-label">Kumulativní příjem za 5 let</div>
+          <div class="r-num" id="r_cum">540 000 Kč</div>
+          <div class="r-note" id="r_cum_note">Součet provizního příjmu za roky 1–5.</div>
+        </div>
+        <div class="kpis">
+          <div class="kpi"><span class="k-num" id="k_avg">108 000 Kč</span><span class="k-lbl">Ø roční příjem</span></div>
+          <div class="kpi"><span class="k-num" id="k_deals">12</span><span class="k-lbl">Obchodů v 5. roce</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const RATES={engagement:0.30, meeting:0.20, closing:0.20};
+const DEAL=90000;          // pevná průměrná velikost obchodu
+let provRate=10;           // provizní sazba: 10 nebo 20
+let churnEnabled=false;    // churn zapnutý?
+let churnRate=20;          // churn 20 nebo 25 %
+const DEFAULTS={contacts:1000,add2:0,add3:0,add4:0,add5:0};
+const fmtInt=n=>new Intl.NumberFormat('cs-CZ').format(Math.round(n));
+const fmtCZK=n=>new Intl.NumberFormat('cs-CZ',{style:'currency',currency:'CZK',maximumFractionDigits:0}).format(Math.round(n));
+function shortCZK(n){
+  if(n>=1e6) return (Math.round(n/1e5)/10).toLocaleString('cs-CZ')+' mil.';
+  if(n>=1e3) return Math.round(n/1e3)+' tis.';
+  return Math.round(n).toString();
+}
+
+// link number <-> range pair (jen oslovené kontakty)
+(() => {
+  const num=document.getElementById('contacts'), rng=document.getElementById('contacts_r');
+  num.addEventListener('input',()=>{rng.value=num.value;calc();});
+  rng.addEventListener('input',()=>{num.value=rng.value;calc();});
+})();
+['add2','add3','add4','add5'].forEach(id=>document.getElementById(id).addEventListener('input',calc));
+
+// provizní sazba: přepínač 10 % / 20 %
+document.querySelectorAll('#provChoice button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    provRate=parseFloat(btn.dataset.prov);
+    document.querySelectorAll('#provChoice button').forEach(b=>b.classList.toggle('on', b===btn));
+    calc();
+  });
+});
+
+// steppery +/- pro obchody v dalších letech
+document.querySelectorAll('.stepper button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const inp=document.getElementById(btn.dataset.t);
+    let v=(parseInt(inp.value,10)||0)+parseInt(btn.dataset.d,10);
+    if(v<0)v=0;
+    inp.value=v;
+    calc();
+  });
+});
+
+// churn: checkbox, pevných 20 % ročně
+const churnBox=document.getElementById('churnOn');
+churnBox.addEventListener('change',()=>{churnEnabled=churnBox.checked;calc();});
+
+const val=id=>parseFloat(document.getElementById(id).value)||0;
+
+function calc(){
+  const contacts=val('contacts');
+  const engaged=contacts*RATES.engagement;
+  const meetings=engaged*RATES.meeting;
+  const deals=meetings*RATES.closing;
+
+  // header value + funnel numbers
+  document.getElementById('v_contacts').textContent=fmtInt(contacts);
+  document.getElementById('s_contacts').textContent=fmtInt(contacts);
+  document.getElementById('s_eng').textContent=fmtInt(engaged);
+  document.getElementById('s_meet').textContent=fmtInt(meetings);
+  document.getElementById('s_close').textContent=fmtInt(deals);
+
+  // provision
+  const deal=DEAL;
+  const prov=provRate;
+  document.getElementById('v_deal').textContent=fmtCZK(deal);
+  const perDeal=deal*prov/100;                // annual provision per active deal
+  const annual1=deals*perDeal;
+  document.getElementById('r_annual').textContent=fmtCZK(annual1);
+  document.getElementById('r_annual_note').textContent=
+    fmtInt(deals)+' uzavřených obchodů × '+fmtCZK(deal)+' × '+prov+' % provize';
+
+  // 5-year model: obchody se sčítají (lifetime provize), volitelně ubývají churnem
+  const add=[0, val('add2'), val('add3'), val('add4'), val('add5')]; // index = year-1
+  const churnF=churnEnabled ? churnRate/100 : 0;
+  let active=deals, cum=0;
+  const yearVals=[], yearDeals=[];
+  for(let y=0;y<5;y++){
+    if(y>0) active=active*(1-churnF); // churn se aplikuje od 2. roku
+    active += add[y];                 // nové obchody v daném roce
+    const inc=active*perDeal;
+    yearVals.push(inc); yearDeals.push(active); cum+=inc;
+  }
+
+  const yearsEl=document.getElementById('years'); yearsEl.innerHTML='';
+  const maxV=Math.max(...yearVals,1);
+  yearVals.forEach((v,i)=>{
+    const col=document.createElement('div');col.className='ycol';
+    const h=Math.max(v/maxV*118,6);
+    col.innerHTML='<div class="ytip">Rok '+(i+1)+'<br>'+fmtInt(yearDeals[i])+' obchodů<b>'+fmtCZK(v)+'</b></div>'
+      +'<div class="ybar" style="height:'+h+'px"></div>'
+      +'<div class="ymeta"><div class="ylabel">Rok '+(i+1)+'</div></div>';
+    yearsEl.appendChild(col);
+  });
+  document.getElementById('r_cum').textContent=fmtCZK(cum);
+  document.getElementById('k_avg').textContent=fmtCZK(cum/5);
+  document.getElementById('k_deals').textContent=fmtInt(yearDeals[4]);
+  const extraTotal=add.reduce((a,b)=>a+b,0);
+  let note='Součet provizního příjmu za roky 1–5';
+  const bits=[];
+  if(extraTotal>0) bits.push(fmtInt(extraTotal)+' přidaných obchodů');
+  if(churnEnabled) bits.push('churn '+churnRate+' % ročně');
+  document.getElementById('r_cum_note').textContent = bits.length ? note+' (vč. '+bits.join(' a ')+').' : note+'.';
+}
+function resetAll(){
+  Object.entries(DEFAULTS).forEach(([k,v])=>{
+    const el=document.getElementById(k);if(el)el.value=v;
+    const r=document.getElementById(k+'_r');if(r)r.value=v;
+  });
+  provRate=10;
+  document.querySelectorAll('#provChoice button').forEach(b=>b.classList.toggle('on', b.dataset.prov==='10'));
+  churnEnabled=false; churnBox.checked=false;
+  calc();
+}
+calc();
+</script>
+</body>
+</html>
